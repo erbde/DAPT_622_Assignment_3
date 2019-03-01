@@ -19,6 +19,8 @@ trip.advisor <- trip.advisor %>%
          religious.institutions = Category.10
          )
 View(trip.advisor)
+## this is a change
+
 
 d <- dist(trip.advisor[,2:11],method="euclidean")
 hier.clust <- hclust(d,method="ward.D")
