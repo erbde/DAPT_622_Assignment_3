@@ -27,7 +27,7 @@ hier.clust <- hclust(d,method="ward.D")
 plot(hier.clust)
 groups <- cutree(hier.clust,k=5)
 rect.hclust(hier.clust,k=5,border="red")
-aggregate(cars[,3:16],list(groups),FUN=mean)
+aggregate(trip.advisor[,2:11],list(groups),FUN=mean)
 
 mydata <- as.matrix(trip.advisor[,2:11])
 rownames(mydata) <- trip.advisor[,1]

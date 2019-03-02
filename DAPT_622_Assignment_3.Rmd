@@ -9,6 +9,9 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 library(data.table)
 library(dplyr)
+library(knitr)
+library(dendextend)
+library(colormap)
 trip.advisor <- read.csv(file = 'Data/tripadvisor_review.csv')
 
 ```
@@ -17,38 +20,53 @@ trip.advisor <- read.csv(file = 'Data/tripadvisor_review.csv')
 
 
 
-## Section A - Perform a heirarchical cluster analysis (via Ward's method) using all the variables except User ID.
+## A - Perform a heirarchical cluster analysis (via Ward's method) using all the variables except User ID.
 
-```{r perform heirarchical cluster analysis}
-# subsection a - perform a hierarchical clust analysis (via Ward's method) using all variables except userID
+```{r perform heirarchical cluster analysis, echo = FALSE}
 trip.advisor <- trip.advisor %>% 
-  rename(art.galleries = Category.1,
+  rename(art.gals = Category.1,
          dance.clubs = Category.2,
-         juice.bars = Category.3,
-         restaurants = Category.4,
-         museums = Category.5,
-         resorts = Category.6,
-         parks.picnic.spots = Category.7,
-         beaches = Category.8,
+         j.bars = Category.3,
+         rest = Category.4,
+         mus = Category.5,
+         res = Category.6,
+         park.pic = Category.7,
+         beach = Category.8,
          theaters = Category.9,
-         religious.institutions = Category.10
+         relig.inst = Category.10
          )
 
 d <- dist(trip.advisor[,2:11],method="euclidean")
 hier.clust <- hclust(d,method="ward.D")
+```
+
+### i - Select an appropriate number of clusters. Provide a dendrogram with the clusters highlighted.
+
+```{r select clusters and provide dendrogram, echo = FALSE}
+k.clusts <- 5
+d <- dist(trip.advisor[,2:11],method="euclidean")
+hier.clust <- hclust(d,method="ward.D")
+
+dend <- d %>% 
+  hclust(method="ward.D") %>% 
+  as.dendrogram()
+
+# Plot with Color in function of the cluster
+leafcolor <- colormap(colormap = colormaps$jet ,
+                      nshades = k.clusts, format = "hex",
+                      alpha = 1, reverse = FALSE)
+##par(mar=c(1,1,1,7))
+dend %>%
+  set("labels_col", value = leafcolor, k=k.clusts) %>%
+  set("branches_k_color", value = leafcolor, k = k.clusts) %>%
+  plot(horiz=FALSE)
 
 ```
 
-### Subsection i - Select an appropriate number of clusters. Provide a dendrogram with the clusters highlighted.
+For this dataset, 5 clusters were chosen as they seem to separate the groups into by usable chunks without being too specific as to be confusing. When looking at the average scores for each type of destination, across the individuals of cluster 1, we see that they tend to rate dance clubs, museums, and restaurants more positively than the individuals within other clusters, while only giving lower scores to religious institutions. Cluster 2, seems to favor art galaries, while disfavoring dance clubs and theaters, when compared to the other clusters. Cluster 3 
 
-```{r select clusters and provide dendrogram}
-
-
-
+```{r show averages, echo = FALSE}
+groups <- cutree(hier.clust,k=k.clusts)
+hier.vals <- as.data.frame(aggregate(trip.advisor[,2:11],list(groups),FUN=mean))
+kable(hier.vals, digits = 2, format = "latex",  caption = "Hierarchical Groupings")
 ```
-
-
-
-
-
-
