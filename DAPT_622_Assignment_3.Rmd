@@ -1,0 +1,54 @@
+---
+title: "DAPT 622 Assignment 3"
+author: "Daniel Erb"
+date: "March 2, 2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(data.table)
+library(dplyr)
+trip.advisor <- read.csv(file = 'Data/tripadvisor_review.csv')
+
+```
+
+# Part 1 - Cluster Analysis
+
+
+
+## Section A - Perform a heirarchical cluster analysis (via Ward's method) using all the variables except User ID.
+
+```{r perform heirarchical cluster analysis}
+# subsection a - perform a hierarchical clust analysis (via Ward's method) using all variables except userID
+trip.advisor <- trip.advisor %>% 
+  rename(art.galleries = Category.1,
+         dance.clubs = Category.2,
+         juice.bars = Category.3,
+         restaurants = Category.4,
+         museums = Category.5,
+         resorts = Category.6,
+         parks.picnic.spots = Category.7,
+         beaches = Category.8,
+         theaters = Category.9,
+         religious.institutions = Category.10
+         )
+
+d <- dist(trip.advisor[,2:11],method="euclidean")
+hier.clust <- hclust(d,method="ward.D")
+
+```
+
+### Subsection i - Select an appropriate number of clusters. Provide a dendrogram with the clusters highlighted.
+
+```{r select clusters and provide dendrogram}
+
+
+
+```
+
+
+
+
+
+
