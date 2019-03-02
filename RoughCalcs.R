@@ -1,7 +1,9 @@
 # libraries
 library(data.table)
 library(dplyr)
+library(colormap)
 
+colormaps
 # section 1 - cluster analysis
 # load data for section 1
 trip.advisor <- read.csv(file = 'Data/tripadvisor_review.csv')

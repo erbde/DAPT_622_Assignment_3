@@ -2,7 +2,9 @@
 title: "DAPT 622 Assignment 3"
 author: "Daniel Erb"
 date: "March 2, 2019"
-output: pdf_document
+output: 
+  pdf_document:
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -20,7 +22,9 @@ trip.advisor <- read.csv(file = 'Data/tripadvisor_review.csv')
 
 
 
-## A - Perform a heirarchical cluster analysis (via Ward's method) using all the variables except User ID.
+## Section A 
+
+Perform a heirarchical cluster analysis (via Ward's method) using all the variables except User ID.
 
 ```{r perform heirarchical cluster analysis, echo = FALSE}
 trip.advisor <- trip.advisor %>% 
@@ -40,7 +44,9 @@ d <- dist(trip.advisor[,2:11],method="euclidean")
 hier.clust <- hclust(d,method="ward.D")
 ```
 
-### i - Select an appropriate number of clusters. Provide a dendrogram with the clusters highlighted.
+### Subsection i
+
+Select an appropriate number of clusters. Provide a dendrogram with the clusters highlighted.
 
 ```{r select clusters and provide dendrogram, echo = FALSE}
 k.clusts <- 5
@@ -55,7 +61,6 @@ dend <- d %>%
 leafcolor <- colormap(colormap = colormaps$jet ,
                       nshades = k.clusts, format = "hex",
                       alpha = 1, reverse = FALSE)
-##par(mar=c(1,1,1,7))
 dend %>%
   set("labels_col", value = leafcolor, k=k.clusts) %>%
   set("branches_k_color", value = leafcolor, k = k.clusts) %>%
@@ -63,10 +68,27 @@ dend %>%
 
 ```
 
-For this dataset, 5 clusters were chosen as they seem to separate the groups into by usable chunks without being too specific as to be confusing. When looking at the average scores for each type of destination, across the individuals of cluster 1, we see that they tend to rate dance clubs, museums, and restaurants more positively than the individuals within other clusters, while only giving lower scores to religious institutions. Cluster 2, seems to favor art galaries, while disfavoring dance clubs and theaters, when compared to the other clusters. Cluster 3 
+### Subsection ii
+
+Provide a table summarizing the clusters via their means. Are there any distinguishing qualities regarding the clusters? 
 
 ```{r show averages, echo = FALSE}
 groups <- cutree(hier.clust,k=k.clusts)
 hier.vals <- as.data.frame(aggregate(trip.advisor[,2:11],list(groups),FUN=mean))
-kable(hier.vals, digits = 2, format = "latex",  caption = "Hierarchical Groupings")
+kable(hier.vals, digits = 2, format = "markdown",  caption = "Hierarchical Groupings")
 ```
+
+For this dataset, 5 clusters were chosen as they seem to separate the groups into by usable chunks without being too specific as to be confusing. When looking at the average scores for each type of destination, across the individuals of cluster 1, we see that they tend to rate dance clubs, museums, and restaurants more positively than the individuals within other clusters, while only giving lower scores to religious institutions. Cluster 2, seems to favor art galaries, while disfavoring dance clubs and theaters, when compared to the other clusters. For cluster 3, individiduals within this group tend to rate juice bars, museums and restaurants lower than other clusters, while rating religious institutions higher than others. Cluster 4 tended to give particularly low ratings to juice bars. This in contrast to rating restaurants and theaters higher than other clusters. Cluster 5 had an average rating for juice bars that tended to be one or two whole ratings higher. They also tended to rate religious institutions lower than other clusters. One intersting note for the averages, both beaches and parks seemed consistently rated across all the clusters.
+
+### Subsection iii
+
+Perform a “two-way” cluster analysis (i.e., cluster the variables) and provide the dendrogram showing the variable clusters and a heat map of the data. Which variables cluster together?
+
+```{r variable clusters and heat map}
+mydata <- as.matrix(trip.advisor[,2:11])
+rownames(mydata) <- trip.advisor[,1]
+datascaled <- scale(mydata)
+heatmap(datascaled, col = colormap(colormap = colormaps$jet))
+```
+
+
