@@ -15,9 +15,8 @@ library(knitr)
 library(dendextend)
 library(colormap)
 library(factoextra)
-library(ggplot2)
-library(forcats)
-trip.advisor <- read.csv(file = 'Data/tripadvisor_review.csv')
+library(FactoMineR)
+trip.advisor <- read.csv(file = "Data/tripadvisor_review.csv")
 
 ```
 
@@ -122,9 +121,9 @@ While many of the categories have similar values for their average ratings, the 
 # Part 2 - Correspondence Analysis
 
 
-```{r load data and aggregate for education, echo = FALSE,message=FALSE}
+```{r load data and aggregate for education, echo = FALSE,message=FALSE,warning=FALSE}
 
-adult.data <- read_csv(file = 'Data/adult.data.txt')
+adult.data <- read_csv(file = "Data/adult.data.txt")
 
 adult.sum <- adult.data %>%
   group_by(education) %>%
@@ -134,14 +133,14 @@ adult.sum <- adult.data %>%
 kable(adult.sum, format = "pandoc",  caption = "Counts in Each Education Level")
 
 adult.data$ed.collapsed <- ifelse(adult.data$education %in% 
-                                    c('10th','11th','12th','1st-4th','5th-6th','7th-8th','9th','Preschool'),
-                                  'Less than High School',
+                                    c("10th","11th","12th","1st-4th","5th-6th","7th-8th","9th","Preschool"),
+                                  "Less than High School",
                                   ifelse(adult.data$education %in%
-                                           c('Assoc-acdm', 'Assoc-voc'),
-                                         'Associates',
+                                           c("Assoc-acdm", "Assoc-voc"),
+                                         "Associates",
                                          ifelse(adult.data$education %in% 
-                                                  c('Doctorate','Masters','Prof-school'),
-                                                'Post Bachelors',
+                                                  c("Doctorate","Masters","Prof-school"),
+                                                "Post Bachelors",
                                                 adult.data$education)
                                          )
                                   )
@@ -154,18 +153,105 @@ adult.sum.collapsed <- adult.data %>%
 
 kable(adult.sum.collapsed, format = "pandoc",  caption = "Consolidated Education Levels")
 
+adult.data$work.clss.collapsed <- fct_collapse(adult.data$WorkClass,
+                          Government = c("Federal-gov", "Local-gov", "State-gov"),
+                          Private = "Private",
+                          Self_employed = c("Self-emp-inc", "Self-emp-not-inc"),
+                          Unemployed = c("Never-worked", "Without-pay"),
+                          Unknown = "?"
+                          )
+
+
+adult.data$nat.ctry.collapsed <- fct_collapse(adult.data$`native-country`,
+                          US = "United-States",
+                          unknown = "?",
+                          group_other = TRUE
+                          )
+
 ```
 
 ## Section A
 
-Are the variables WorkClass and education independent of each other? Perform a chi-square test of independence. Produce a mosaic plot of the data. 
+Are the variables WorkClass and education independent of each other? Perform a chi-square test of independence. Produce a mosaic plot of the data.
+
+```{r perform chi-squared and create mosaic plot, echo = FALSE}
+
+# create cross tab (contingency table)
+ct <- xtabs(~ed.collapsed + work.clss.collapsed,data = adult.data)
+kable(ct, format = "pandoc",  caption = "Cross-tabulation of Education and Work Class")
+
+chisq <- chisq.test(ct)
+chisq
+mosaicplot(ct,shade=TRUE, las=2)
+
+```
 
 ## Section B
+Perform a correspondence analysis on WorkClass and education. How many dimensions should be retained? Using the first two dimensions, construct a visualization of the correspondence analysis. Interpret what you see.
+
+```{r correspondence analysis on workclass and education, echo = FALSE}
+ca <- CA(ct,graph=FALSE) #correspondence analysis
+summary(ca)
 
 
+eigenvalues <- get_eigenvalue(ca)
+fviz_screeplot(ca)
+fviz_ca_biplot(ca) #Biplot
 
+# what's furthest away on these plots
+fviz_contrib(ca,choice="row",axes=1)
+fviz_contrib(ca,choice="col",axes=1)
+```
 
 ## Section C
+
+Using all of the categorical variables in this data set, perform a multiple correspondence analysis. Summarize your results and interpret.
+```{r multiple correspondence analysis, echo = FALSE}
+# need counts to go next to the left of ~
+
+ad.for.x <- adult.data %>% 
+  group_by(`marital-status`,
+           occupation,
+           #relationship,
+           race,
+           sex,
+           ed.collapsed,
+           work.clss.collapsed,
+           nat.ctry.collapsed#,
+           #`Over/Under`
+           ) %>% 
+  summarize(count = n())
+
+ad.for.x$`marital-status` <- as.factor(ad.for.x$`marital-status`)
+ad.for.x$occupation <- as.factor(ad.for.x$occupation)
+ad.for.x$race <- as.factor(ad.for.x$race)
+ad.for.x$sex <- as.factor(ad.for.x$sex)
+ad.for.x$ed.collapsed <- as.factor(ad.for.x$ed.collapsed)
+ad.for.x$work.clss.collapsed <- as.factor(ad.for.x$work.clss.collapsed)
+ad.for.x$nat.ctry.collapsed <- as.factor(ad.for.x$nat.ctry.collapsed)
+ad.for.x$count <- as.factor(ad.for.x$count)
+
+#x.ad <- xtabs(count ~ `marital-status` + occupation + # relationship + 
+#                race + sex + ed.collapsed + work.clss.collapsed + 
+#                nat.ctry.collapsed,# + `Over/Under`,
+#              data = ad.for.x)
+#gc()
+#ca <- MCA(x.ad[],graph=FALSE) #correspondence analysis
+#summary(ca)
+
+
+#eigenvalues <- get_eigenvalue(ca)
+#fviz_screeplot(ca)
+#fviz_ca_biplot(ca) #Biplot
+
+# what's furthest away on these plots
+#fviz_contrib(ca,choice="row",axes=1)
+#fviz_contrib(ca,choice="col",axes=1)
+
+```
+
+
+
 
 
 
