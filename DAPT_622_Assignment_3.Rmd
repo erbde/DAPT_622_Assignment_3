@@ -118,4 +118,7 @@ fviz_cluster(kmean.clust,data=trip.advisor[,2:11],
              axes = c(2,3),
              ggtheme = theme_minimal())
 
+trip.advisor1 <- cbind(trip.advisor,groups)
+trip.advisor1 <- cbind(trip.advisor1,kmean.clust$cluster)
+trip.advisor1 <- rename(trip.advisor1, hier.cluster = groups, k.cluster = kmeans.clust$cluster)
 ```
