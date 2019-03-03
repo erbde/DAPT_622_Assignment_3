@@ -29,7 +29,7 @@ Perform a heirarchical cluster analysis (via Ward's method) using all the variab
 ```{r perform heirarchical cluster analysis, echo = FALSE}
 trip.advisor <- trip.advisor %>% 
   rename(art.gals = Category.1,
-         dance.clubs = Category.2,
+         dnce.clb = Category.2,
          j.bars = Category.3,
          rest = Category.4,
          mus = Category.5,
@@ -91,4 +91,4 @@ datascaled <- scale(mydata)
 heatmap(datascaled, col = colormap(colormap = colormaps$jet))
 ```
 
-
+Parks and picnic areas clustered together with juice bars earlier than any other categories. The next to cluster to form was comprised of museums and restaurant ratings. These two clusters then clustered sooner than any other categories clustered wih any other categories. As we follow the tree upward, we see that beaches and theaters cluster together next, however the visual seems to give weeker evidence of this.
