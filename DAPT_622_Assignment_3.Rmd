@@ -10,12 +10,13 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(data.table)
-library(dplyr)
+library(tidyverse)
 library(knitr)
 library(dendextend)
 library(colormap)
 library(factoextra)
 library(ggplot2)
+library(forcats)
 trip.advisor <- read.csv(file = 'Data/tripadvisor_review.csv')
 
 ```
@@ -125,7 +126,42 @@ While many of the categories have similar values for their average ratings, the 
 Are the variables WorkClass and education independent of each other? Perform a chi-square test of independence. Produce a mosaic plot of the data. 
 ```{r load data and aggregate for education, echo = FALSE}
 
-adult.data <- read.csv(file = 'Data/adult.data.txt')
+adult.data <- read_csv(file = 'Data/adult.data.txt')
+
+adult.sum <- adult.data %>%
+  group_by(education) %>%
+  summarise(count = n()) %>% 
+  arrange(desc(count))
+
+kable(adult.sum, format = "pandoc",  caption = "Counts in Each Education Level")
+
+# Jonathan's method
+adult.data$ed.collapsed <- fct_collapse(adult.data$education,
+                          "Less than High School" = c("10th", "11th", "12th", "1st-4th", "5th-6th", "7th-8th", "9th", "Preschool"),
+                          HS = "HS-grad",
+                          associates = c("Assoc-acdm", "Assoc-voc"),
+                          bachelors = "Bachelors",
+                          Some_college = "Some-college",
+                          post_bachelors = c("Doctorate", "Masters", "Prof-school")
+                          )
+
+adult.data$ed.collapsed <- ifelse(adult.data$education == '10th'|
+                                  adult.data$education == '11th'|
+                                  adult.data$education == '12th'|
+                                  adult.data$education == '1st-4th'|
+                                  adult.data$education == '5th-6th'|
+                                  adult.data$education == '7th-8th'|
+                                  adult.data$education == '9th'|
+                                  adult.data$education == 'Preschool',"Less than High School",
+                                  
+                                  adult.data$education)
+levels(adult.data$ed.collapsed)
+
+adult.sum.collapsed <- adult.data %>%
+  group_by(ed.collapsed) %>%
+  summarise(count = n()) %>% 
+  arrange(desc(count))
+kable(adult.sum.collapsed, format = "pandoc",  caption = "Counts in Each Education Level")
 
 ```
 

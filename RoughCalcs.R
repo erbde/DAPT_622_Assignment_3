@@ -39,3 +39,6 @@ heatmap(datascaled)
 
 # section 2
 ad <- read.csv(file = 'Data/adult.data.txt')
+
+ad$education
+levels(ad$education)
