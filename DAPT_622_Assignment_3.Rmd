@@ -18,6 +18,7 @@ library(factoextra)
 library(FactoMineR)
 trip.advisor <- read.csv(file = "Data/tripadvisor_review.csv")
 
+# tiny change
 ```
 
 # Part 1 - Cluster Analysis
